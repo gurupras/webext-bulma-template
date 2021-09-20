@@ -1,15 +1,17 @@
 <template>
-  <main class="w-[300px] px-4 py-5 text-center text-gray-700">
-    <Logo />
-    <div>Popup</div>
-    <p class="mt-2 opacity-50">
-      This is the popup page
-    </p>
-    <button class="btn mt-2" @click="openOptionsPage">
-      Open Options
-    </button>
-    <div class="mt-2">
-      <span class="opacity-50">Storage:</span> {{ storageDemo }}
+  <main class="dropdown is-active">
+    <div class="dropdown-menu">
+      <div class="dropdown-content">
+        <a class="dropdown-item" @click="openOptionsPage">
+          <span class="icon-text">
+            <cil-settings class="icon" />
+            <span>Options</span>
+          </span>
+        </a>
+        <a class="dropdown-item">
+          Option 2
+        </a>
+      </div>
     </div>
   </main>
 </template>
@@ -21,3 +23,17 @@ function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
 </script>
+
+<style lang="scss" scoped>
+.dropdown {
+  width: 100%;
+  .dropdown-menu {
+    position: relative;
+    width: 100%;
+  }
+}
+
+.icon-text .icon:not(:last-child) {
+  margin-right: 0.5em;
+}
+</style>

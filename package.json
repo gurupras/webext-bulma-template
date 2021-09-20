@@ -1,6 +1,6 @@
 {
-  "name": "vitesse-webext",
-  "displayName": "Vitesse WebExt",
+  "name": "webext-template",
+  "displayName": "Web Extension Template",
   "version": "0.0.1",
   "description": "[description]",
   "private": true,
@@ -47,11 +47,14 @@
     "unplugin-icons": "^0.7.6",
     "unplugin-vue-components": "^0.15.0",
     "vite": "^2.5.4",
-    "vite-plugin-windicss": "^1.4.2",
     "vue": "^3.2.10",
     "vue-demi": "^0.11.4",
     "web-ext": "^6.3.0",
     "webext-bridge": "^4.1.1",
     "webextension-polyfill": "^0.8.0"
+  },
+  "dependencies": {
+    "bulma": "^0.9.3",
+    "sass": "^1.41.1"
   }
 }
