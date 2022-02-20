@@ -1,3 +1,4 @@
+import { dirname, relative } from 'path'
 import { defineConfig, UserConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Icons from 'unplugin-icons/vite'
@@ -24,7 +25,7 @@ export const sharedConfig: UserConfig = {
         'vue',
         {
           'webextension-polyfill': [
-            ['default', 'browser'],
+            ['*', 'browser'],
           ],
         },
       ],
@@ -52,8 +53,8 @@ export const sharedConfig: UserConfig = {
       name: 'assets-rewrite',
       enforce: 'post',
       apply: 'build',
-      transformIndexHtml(html) {
-        return html.replace(/"\/assets\//g, '"../assets/')
+      transformIndexHtml(html, { path }) {
+        return html.replace(/"\/assets\//g, `"${relative(dirname(path), '/assets')}/`)
       },
     },
   ],
@@ -71,7 +72,7 @@ export const sharedConfig: UserConfig = {
 
 export default defineConfig(({ command }) => ({
   ...sharedConfig,
-  base: command === 'serve' ? `http://localhost:${port}/` : undefined,
+  base: command === 'serve' ? `http://localhost:${port}/` : '/dist/',
   server: {
     port,
     hmr: {
