@@ -3,7 +3,7 @@ import type { Manifest } from 'webextension-polyfill'
 import type PkgType from '../package.json'
 import { isDev, port, r } from '../scripts/utils'
 
-export async function getManifest() {
+export async function getManifest () {
   const pkg = await fs.readJSON(r('package.json')) as typeof PkgType
 
   // update this file to update this manifest.json
@@ -15,36 +15,36 @@ export async function getManifest() {
     description: pkg.description,
     browser_action: {
       default_icon: './assets/icon-512.png',
-      default_popup: './dist/popup/index.html',
+      default_popup: './dist/popup/index.html'
     },
     options_ui: {
       page: './dist/options/index.html',
       open_in_tab: true,
-      chrome_style: false,
+      chrome_style: false
     },
     background: {
       page: './dist/background/index.html',
-      persistent: false,
+      persistent: false
     },
     icons: {
       16: './assets/icon-512.png',
       48: './assets/icon-512.png',
-      128: './assets/icon-512.png',
+      128: './assets/icon-512.png'
     },
     permissions: [
       'tabs',
       'storage',
       'activeTab',
       'http://*/',
-      'https://*/',
+      'https://*/'
     ],
     content_scripts: [{
       matches: ['http://*/*', 'https://*/*'],
-      js: ['./dist/contentScripts/index.global.js'],
+      js: ['./dist/contentScripts/index.global.js']
     }],
     web_accessible_resources: [
-      'dist/contentScripts/style.css',
-    ],
+      'dist/contentScripts/style.css'
+    ]
   }
 
   if (isDev) {
@@ -55,7 +55,7 @@ export async function getManifest() {
     manifest.permissions?.push('webNavigation')
 
     // this is required on dev for Vite script to load
-    manifest.content_security_policy = `script-src \'self\' http://localhost:${port}; object-src \'self\'`
+    manifest.content_security_policy = `script-src 'self' http://localhost:${port}; object-src 'self'`
   }
 
   return manifest

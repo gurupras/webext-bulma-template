@@ -1,5 +1,5 @@
 <script setup lang="ts">
-function openOptionsPage() {
+function openOptionsPage () {
   browser.runtime.openOptionsPage()
 }
 </script>
