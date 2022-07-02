@@ -1,11 +1,14 @@
+/// <reference types="vitest" />
+
 import { dirname, relative } from 'path'
-import { defineConfig, UserConfig } from 'vite'
+import type { UserConfig } from 'vite'
+import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import { r, port, isDev } from './scripts/utils'
+import { isDev, port, r } from './scripts/utils'
 
 export const sharedConfig: UserConfig = {
   root: r('src'),
@@ -36,7 +39,7 @@ export const sharedConfig: UserConfig = {
     Components({
       dirs: [r('src/components')],
       // generate `components.d.ts` for ts support with Volar
-      dts: true,
+      dts: r('src/components.d.ts'),
       resolvers: [
         // auto import icons
         IconsResolver({
@@ -98,4 +101,8 @@ export default defineConfig(({ command }) => ({
   plugins: [
     ...sharedConfig.plugins!,
   ],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
 }))

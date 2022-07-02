@@ -1,3 +1,9 @@
+<script setup lang="ts">
+function openOptionsPage() {
+  browser.runtime.openOptionsPage()
+}
+</script>
+
 <template>
   <main class="dropdown is-active">
     <div class="dropdown-menu">
@@ -15,14 +21,6 @@
     </div>
   </main>
 </template>
-
-<script setup lang="ts">
-import { storageDemo } from '~/logic/storage'
-
-function openOptionsPage() {
-  browser.runtime.openOptionsPage()
-}
-</script>
 
 <style lang="scss" scoped>
 .dropdown {

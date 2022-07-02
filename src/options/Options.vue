@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { storageDemo } from '~/logic/storage'
+</script>
+
 <template>
   <main class="container">
     <div class="section">
@@ -12,7 +16,7 @@
                 <p class="control has-icons-left">
                   <input v-model="storageDemo" class="input" />
                   <span class="icon is-small is-left">
-                    <mdi-storage class="has-text-dark" />
+                    <i-mdi-database class="has-text-dark" />
                   </span>
                 </p>
               </div>
@@ -23,7 +27,3 @@
     </div>
   </main>
 </template>
-
-<script setup lang="ts">
-import { storageDemo } from '~/logic/storage'
-</script>
