@@ -31,29 +31,26 @@ try {
 
   // ping server
   socket.addEventListener('close', async ({ wasClean }) => {
-    if (wasClean)
-      return
+    if (wasClean) { return }
     console.log('[vite] server connection lost. polling for restart...')
     await waitForSuccessfulPing()
     location.reload()
   })
-}
-catch (error) {
+} catch (error) {
   console.error(`[vite] failed to connect to websocket (${error}). `)
 }
 
-function warnFailedFetch(err: Error, path: string | string[]) {
-  if (!err.message.match('fetch'))
-    console.error(err)
+function warnFailedFetch (err: Error, path: string | string[]) {
+  if (!err.message.match('fetch')) { console.error(err) }
 
   console.error(
-    `[hmr] Failed to reload ${path}. `
-      + 'This could be due to syntax errors or importing non-existent '
-      + 'modules. (see errors above)',
+    `[hmr] Failed to reload ${path}. ` +
+      'This could be due to syntax errors or importing non-existent ' +
+      'modules. (see errors above)'
   )
 }
 
-function cleanUrl(pathname: string): string {
+function cleanUrl (pathname: string): string {
   const url = new URL(pathname, location.toString())
   url.searchParams.delete('direct')
   return url.pathname + url.search
@@ -61,7 +58,7 @@ function cleanUrl(pathname: string): string {
 
 let isFirstUpdate = true
 
-async function handleMessage(payload: HMRPayload) {
+async function handleMessage (payload: HMRPayload) {
   switch (payload.type) {
     case 'connected':
       console.debug('[vite] connected.')
@@ -79,16 +76,14 @@ async function handleMessage(payload: HMRPayload) {
       if (isFirstUpdate && hasErrorOverlay()) {
         window.location.reload()
         return
-      }
-      else {
+      } else {
         clearErrorOverlay()
         isFirstUpdate = false
       }
       payload.updates.forEach((update) => {
         if (update.type === 'js-update') {
           queueUpdate(fetchUpdate(update))
-        }
-        else {
+        } else {
           // css-update
           // this is only sent when a css file referenced with <link> is updated
           const { path, timestamp } = update
@@ -97,7 +92,7 @@ async function handleMessage(payload: HMRPayload) {
           // using relative paths so we need to use link.href to grab the full
           // URL for the include check.
           const el = Array.from(document.querySelectorAll<HTMLLinkElement>('link')).find(e =>
-            cleanUrl(e.href).includes(searchUrl),
+            cleanUrl(e.href).includes(searchUrl)
           )
           if (el) {
             const newPath = `${base}${searchUrl.slice(1)}${searchUrl.includes('?') ? '&' : '?'}t=${timestamp}`
@@ -119,13 +114,11 @@ async function handleMessage(payload: HMRPayload) {
         const pagePath = decodeURI(location.pathname)
         const payloadPath = base + payload.path.slice(1)
         if (
-          pagePath === payloadPath
-          || payload.path === '/index.html'
-          || (pagePath.endsWith('/') && `${pagePath}index.html` === payloadPath)
-        )
-          location.reload()
-      }
-      else {
+          pagePath === payloadPath ||
+          payload.path === '/index.html' ||
+          (pagePath.endsWith('/') && `${pagePath}index.html` === payloadPath)
+        ) { location.reload() }
+      } else {
         location.reload()
       }
       break
@@ -137,16 +130,13 @@ async function handleMessage(payload: HMRPayload) {
       // TODO Trigger their dispose callbacks.
       payload.paths.forEach((path) => {
         const fn = pruneMap.get(path)
-        if (fn)
-          fn(dataMap.get(path))
+        if (fn) { fn(dataMap.get(path)) }
       })
       break
     case 'error': {
       notifyListeners('vite:error', payload)
       const err = payload.err
-      if (enableOverlay)
-        createErrorOverlay(err)
-      else console.error(`[vite] Internal Server Error\n${err.message}\n${err.stack}`)
+      if (enableOverlay) { createErrorOverlay(err) } else console.error(`[vite] Internal Server Error\n${err.message}\n${err.stack}`)
 
       break
     }
@@ -158,24 +148,22 @@ async function handleMessage(payload: HMRPayload) {
 }
 
 function notifyListeners<T extends string>(event: T, data: InferCustomEventPayload<T>): void
-function notifyListeners(event: string, data: any): void {
+function notifyListeners (event: string, data: any): void {
   const cbs = customListenersMap.get(event)
-  if (cbs)
-    cbs.forEach(cb => cb(data))
+  if (cbs) { cbs.forEach(cb => cb(data)) }
 }
 
-function createErrorOverlay(err: ErrorPayload['err']) {
-  if (!enableOverlay)
-    return
+function createErrorOverlay (err: ErrorPayload['err']) {
+  if (!enableOverlay) { return }
   clearErrorOverlay()
   document.body.appendChild(new ErrorOverlay(err))
 }
 
-function clearErrorOverlay() {
+function clearErrorOverlay () {
   document.querySelectorAll(overlayId).forEach(n => (n as ErrorOverlay).close())
 }
 
-function hasErrorOverlay() {
+function hasErrorOverlay () {
   return document.querySelectorAll(overlayId).length
 }
 
@@ -187,7 +175,7 @@ let queued: Promise<(() => void) | undefined>[] = []
  * so that they are invoked in the same order they were sent.
  * (otherwise the order may be inconsistent because of the http request round trip)
  */
-async function queueUpdate(p: Promise<(() => void) | undefined>) {
+async function queueUpdate (p: Promise<(() => void) | undefined>) {
   queued.push(p)
   if (!pending) {
     pending = true
@@ -199,7 +187,7 @@ async function queueUpdate(p: Promise<(() => void) | undefined>) {
   }
 }
 
-async function waitForSuccessfulPing(ms = 1000) {
+async function waitForSuccessfulPing (ms = 1000) {
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
@@ -207,8 +195,7 @@ async function waitForSuccessfulPing(ms = 1000) {
       // but will reject a networking error.
       await fetch(`${location.protocol}//${socketHost}`)
       break
-    }
-    catch (e) {
+    } catch (e) {
       // wait ms before attempting to ping again
       await new Promise(resolve => setTimeout(resolve, ms))
     }
@@ -228,7 +215,7 @@ const supportsConstructedSheet = (() => {
 
 const sheetsMap = new Map()
 
-export function updateStyle(id: string, content: string): void {
+export function updateStyle (id: string, content: string): void {
   let style = sheetsMap.get(id)
   if (supportsConstructedSheet && !content.includes('@import')) {
     if (style && !(style instanceof CSSStyleSheet)) {
@@ -241,12 +228,10 @@ export function updateStyle(id: string, content: string): void {
       style.replaceSync(content)
       // @ts-expect-error: using experimental API
       document.adoptedStyleSheets = [...document.adoptedStyleSheets, style]
-    }
-    else {
+    } else {
       style.replaceSync(content)
     }
-  }
-  else {
+  } else {
     if (style && !(style instanceof HTMLStyleElement)) {
       removeStyle(id)
       style = undefined
@@ -257,29 +242,27 @@ export function updateStyle(id: string, content: string): void {
       style.setAttribute('type', 'text/css')
       style.innerHTML = content
       document.head.appendChild(style)
-    }
-    else {
+    } else {
       style.innerHTML = content
     }
   }
   sheetsMap.set(id, style)
 }
 
-export function removeStyle(id: string): void {
+export function removeStyle (id: string): void {
   const style = sheetsMap.get(id)
   if (style) {
     if (style instanceof CSSStyleSheet) {
       // @ts-expect-error: using experimental API
       document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s: CSSStyleSheet) => s !== style)
-    }
-    else {
+    } else {
       document.head.removeChild(style)
     }
     sheetsMap.delete(id)
   }
 }
 
-async function fetchUpdate({ path, acceptedPath, timestamp }: Update) {
+async function fetchUpdate ({ path, acceptedPath, timestamp }: Update) {
   let mod = hotModulesMap.get(path)
   if (!mod) {
     mod = hotModulesMap.get(path.replace(/\.js$/, ''))
@@ -303,13 +286,11 @@ async function fetchUpdate({ path, acceptedPath, timestamp }: Update) {
   if (isSelfUpdate) {
     // self update - only update self
     modulesToUpdate.add(path)
-  }
-  else {
+  } else {
     // dep update
     for (const { deps } of mod.callbacks) {
       deps.forEach((dep) => {
-        if (acceptedPath === dep)
-          modulesToUpdate.add(dep)
+        if (acceptedPath === dep) { modulesToUpdate.add(dep) }
       })
     }
   }
@@ -322,8 +303,7 @@ async function fetchUpdate({ path, acceptedPath, timestamp }: Update) {
   await Promise.all(
     Array.from(modulesToUpdate).map(async (dep) => {
       const disposer = disposeMap.get(dep)
-      if (disposer)
-        await disposer(dataMap.get(dep))
+      if (disposer) { await disposer(dataMap.get(dep)) }
       const [path, query] = dep.split('?')
       try {
         const newMod = await import(
@@ -331,11 +311,10 @@ async function fetchUpdate({ path, acceptedPath, timestamp }: Update) {
           `${base + path.slice(1)}.js?import&t=${timestamp}${query ? `&${query}` : ''}`
         )
         moduleMap.set(dep, newMod)
-      }
-      catch (e: any) {
+      } catch (e: any) {
         warnFailedFetch(e, dep)
       }
-    }),
+    })
   )
 
   return () => {
@@ -346,7 +325,7 @@ async function fetchUpdate({ path, acceptedPath, timestamp }: Update) {
   }
 }
 
-function sendMessageBuffer() {
+function sendMessageBuffer () {
   if (socket.readyState === 1) {
     messageBuffer.forEach(msg => socket.send(msg))
     messageBuffer.length = 0
@@ -364,15 +343,13 @@ interface HotCallback {
   fn: (modules: object[]) => void
 }
 
-export function createHotContext(ownerPath: string): ViteHotContext {
-  if (!dataMap.has(ownerPath))
-    dataMap.set(ownerPath, {})
+export function createHotContext (ownerPath: string): ViteHotContext {
+  if (!dataMap.has(ownerPath)) { dataMap.set(ownerPath, {}) }
 
   // when a file is hot updated, a new context is created
   // clear its stale callbacks
   const mod = hotModulesMap.get(ownerPath)
-  if (mod)
-    mod.callbacks = []
+  if (mod) { mod.callbacks = [] }
 
   // clear stale custom event listeners
   const staleListeners = ctxToListenersMap.get(ownerPath)
@@ -382,7 +359,7 @@ export function createHotContext(ownerPath: string): ViteHotContext {
       if (listeners) {
         customListenersMap.set(
           event,
-          listeners.filter(l => !staleFns.includes(l)),
+          listeners.filter(l => !staleFns.includes(l))
         )
       }
     }
@@ -391,62 +368,59 @@ export function createHotContext(ownerPath: string): ViteHotContext {
   const newListeners = new Map()
   ctxToListenersMap.set(ownerPath, newListeners)
 
-  function acceptDeps(deps: string[], callback: HotCallback['fn'] = () => {}) {
+  function acceptDeps (deps: string[], callback: HotCallback['fn'] = () => {}) {
     const mod: HotModule = hotModulesMap.get(ownerPath) || {
       id: ownerPath,
-      callbacks: [],
+      callbacks: []
     }
     mod.callbacks.push({
       deps,
-      fn: callback,
+      fn: callback
     })
     hotModulesMap.set(ownerPath, mod)
   }
 
   const hot: ViteHotContext = {
-    get data() {
+    get data () {
       console.log('ViteHotContext data', { dataMap, ownerPath })
       return dataMap.get(ownerPath)
     },
 
-    accept(deps?: any, callback?: any) {
+    accept (deps?: any, callback?: any) {
       if (typeof deps === 'function' || !deps) {
         // self-accept: hot.accept(() => {})
         acceptDeps([ownerPath], ([mod]) => deps && deps(mod))
-      }
-      else if (typeof deps === 'string') {
+      } else if (typeof deps === 'string') {
         // explicit deps
         acceptDeps([deps], ([mod]) => callback && callback(mod))
-      }
-      else if (Array.isArray(deps)) {
+      } else if (Array.isArray(deps)) {
         acceptDeps(deps, callback)
-      }
-      else {
+      } else {
         throw new TypeError('invalid hot.accept() usage.')
       }
     },
 
-    dispose(cb) {
+    dispose (cb) {
       disposeMap.set(ownerPath, cb)
     },
 
     // @ts-expect-error untyped
-    prune(cb: (data: any) => void) {
+    prune (cb: (data: any) => void) {
       pruneMap.set(ownerPath, cb)
     },
 
     // TODO
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    decline() {},
+    decline () {},
 
-    invalidate() {
+    invalidate () {
       // TODO should tell the server to re-perform hmr propagation
       // from this module as root
       location.reload()
     },
 
     // custom events
-    on(event, cb) {
+    on (event, cb) {
       const addToMap = (map: Map<string, any[]>) => {
         const existing = map.get(event) || []
         existing.push(cb)
@@ -456,10 +430,10 @@ export function createHotContext(ownerPath: string): ViteHotContext {
       addToMap(newListeners)
     },
 
-    send(event, data) {
+    send (event, data) {
       messageBuffer.push(JSON.stringify({ type: 'custom', event, data }))
       sendMessageBuffer()
-    },
+    }
   }
 
   return hot
@@ -468,10 +442,9 @@ export function createHotContext(ownerPath: string): ViteHotContext {
 /**
  * urls here are dynamic import() urls that couldn't be statically analyzed
  */
-export function injectQuery(url: string, queryToInject: string): string {
+export function injectQuery (url: string, queryToInject: string): string {
   // skip urls that won't be handled by vite
-  if (!url.startsWith('.') && !url.startsWith('/'))
-    return url
+  if (!url.startsWith('.') && !url.startsWith('/')) { return url }
 
   // can't use pathname from URL since it may be relative like ../
   const pathname = url.replace(/#.*$/, '').replace(/\?.*$/, '')

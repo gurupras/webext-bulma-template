@@ -1,2 +1,2 @@
-import './main.css'
-import 'virtual:windi.css'
+import './main.scss'
+import 'bulma/css/bulma.min.css'
