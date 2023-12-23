@@ -1,5 +1,7 @@
 <script setup lang="ts">
-function openOptionsPage () {
+import { storageDemo } from '~/logic/storage'
+
+function openOptionsPage() {
   browser.runtime.openOptionsPage()
 }
 </script>
@@ -25,6 +27,7 @@ function openOptionsPage () {
 <style lang="scss" scoped>
 .dropdown {
   width: 100%;
+
   .dropdown-menu {
     position: relative;
     width: 100%;

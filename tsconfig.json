@@ -17,7 +17,7 @@
       "vite/client"
     ],
     "paths": {
-      "~/*": ["src/*"]
+      "~/*": ["src/*", ".eslintrc.js"]
     }
   },
   "exclude": ["dist", "node_modules"]

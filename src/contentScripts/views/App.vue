@@ -1,26 +1,40 @@
 <script setup lang="ts">
 import { useToggle } from '@vueuse/core'
-
 const [show, toggle] = useToggle(false)
 </script>
 
 <template>
-  <div class="fixed right-0 bottom-0 m-5 z-100 flex font-sans select-none leading-1em">
-    <div
-      class="bg-white text-gray-800 rounded-full shadow w-max h-min"
-      p="x-4 y-2"
-      m="y-auto r-2"
-      transition="opacity duration-300"
-      :class="show ? 'opacity-100' : 'opacity-0'"
-    >
-      Vitesse WebExt
+  <div class="root">
+    <div class="cs-content" :class="{show}">
+      <h1 class="title is-size-2">
+        Vitesse WebExt
+      </h1>
     </div>
-    <div
-      class="flex w-10 h-10 rounded-full shadow cursor-pointer"
-      bg="teal-600 hover:teal-700"
-      @click="toggle()"
-    >
+    <button class="button is-link is-rounded" @click="toggle()">
       <pixelarticons-power class="block m-auto text-white text-lg" />
-    </div>
+    </button>
   </div>
 </template>
+
+<style lang="scss" scoped>
+@import '../../styles/main.scss';
+.root {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  user-select: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+
+  .cs-content {
+    background-color: white;
+    color: #2e2e2e;
+    transition: opacity 300ms;
+    opacity: 0;
+    &.show {
+      opacity: 0.6;
+    }
+  }
+}
+</style>

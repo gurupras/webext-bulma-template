@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 
-import { dirname, relative } from 'path'
+import { dirname, relative } from 'node:path'
 import type { UserConfig } from 'vite'
 import { defineConfig } from 'vite'
 import Vue from '@vitejs/plugin-vue'
@@ -9,17 +9,18 @@ import IconsResolver from 'unplugin-icons/resolver'
 import Components from 'unplugin-vue-components/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import { isDev, port, r } from './scripts/utils'
-import { MV3Hmr } from './vite-mv3-hmr'
+import packageJson from './package.json'
 
 export const sharedConfig: UserConfig = {
   root: r('src'),
   resolve: {
     alias: {
-      '~/': `${r('src')}/`
-    }
+      '~/': `${r('src')}/`,
+    },
   },
   define: {
-    __DEV__: isDev
+    __DEV__: isDev,
+    __NAME__: JSON.stringify(packageJson.name),
   },
   plugins: [
     Vue(),
@@ -29,11 +30,11 @@ export const sharedConfig: UserConfig = {
         'vue',
         {
           'webextension-polyfill': [
-            ['*', 'browser']
-          ]
-        }
+            ['*', 'browser'],
+          ],
+        },
       ],
-      dts: r('src/auto-imports.d.ts')
+      dts: r('src/auto-imports.d.ts'),
     }),
 
     // https://github.com/antfu/unplugin-vue-components
@@ -44,9 +45,9 @@ export const sharedConfig: UserConfig = {
       resolvers: [
         // auto import icons
         IconsResolver({
-          componentPrefix: ''
-        })
-      ]
+          prefix: '',
+        }),
+      ],
     }),
 
     // https://github.com/antfu/unplugin-icons
@@ -57,21 +58,21 @@ export const sharedConfig: UserConfig = {
       name: 'assets-rewrite',
       enforce: 'post',
       apply: 'build',
-      transformIndexHtml (html, { path }) {
+      transformIndexHtml(html, { path }) {
         return html.replace(/"\/assets\//g, `"${relative(dirname(path), '/assets')}/`)
-      }
-    }
+      },
+    },
   ],
   optimizeDeps: {
     include: [
       'vue',
       '@vueuse/core',
-      'webextension-polyfill'
+      'webextension-polyfill',
     ],
     exclude: [
-      'vue-demi'
-    ]
-  }
+      'vue-demi',
+    ],
+  },
 }
 
 export default defineConfig(({ command }) => ({
@@ -80,30 +81,29 @@ export default defineConfig(({ command }) => ({
   server: {
     port,
     hmr: {
-      host: 'localhost'
-    }
+      host: 'localhost',
+    },
   },
   build: {
+    watch: isDev
+      ? {}
+      : undefined,
     outDir: r('extension/dist'),
     emptyOutDir: false,
     sourcemap: isDev ? 'inline' : false,
     // https://developer.chrome.com/docs/webstore/program_policies/#:~:text=Code%20Readability%20Requirements
     terserOptions: {
-      mangle: false
+      mangle: false,
     },
     rollupOptions: {
       input: {
         options: r('src/options/index.html'),
-        popup: r('src/popup/index.html')
-      }
-    }
+        popup: r('src/popup/index.html'),
+      },
+    },
   },
-  plugins: [
-    MV3Hmr(),
-    ...sharedConfig.plugins!
-  ],
   test: {
     globals: true,
-    environment: 'jsdom'
-  }
+    environment: 'jsdom',
+  },
 }))
