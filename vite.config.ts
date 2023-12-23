@@ -54,9 +54,6 @@ export const sharedConfig: UserConfig = {
     // https://github.com/antfu/unplugin-icons
     Icons(),
 
-    // https://github.com/unocss/unocss
-    UnoCSS(),
-
     // rewrite assets to use relative path
     {
       name: 'assets-rewrite',
