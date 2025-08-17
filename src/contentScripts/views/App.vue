@@ -17,7 +17,8 @@ const [show, toggle] = useToggle(false)
 </template>
 
 <style lang="scss" scoped>
-@import '../../styles/main.scss';
+@use '../../styles/main.scss';
+
 .root {
   position: fixed;
   bottom: 0;
