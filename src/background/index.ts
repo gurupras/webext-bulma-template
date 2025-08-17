@@ -1,10 +1,6 @@
-<<<<<<< HEAD:src/background/index.ts
-=======
 import { onMessage, sendMessage } from 'webext-bridge/background'
->>>>>>> dev-mv3:src/background/main.ts
 import type { Tabs } from 'webextension-polyfill'
 import browser from 'webextension-polyfill'
-import { onMessage, sendMessage } from 'webext-bridge'
 
 browser.runtime.onInstalled.addListener((): void => {
   // eslint-disable-next-line no-console

@@ -1,5 +1,5 @@
 import { StorageSerializers } from '@vueuse/core'
-import { toValue, tryOnScopeDispose, watchWithFilter } from '@vueuse/shared'
+import { pausableWatch, toValue, tryOnScopeDispose } from '@vueuse/shared'
 import { ref, shallowRef } from 'vue-demi'
 import { storage } from 'webextension-polyfill'
 
@@ -46,7 +46,7 @@ const storageInterface: StorageLikeAsync = {
   async getItem(key: string) {
     const storedData = await storage.local.get(key)
 
-    return storedData[key]
+    return storedData[key] as string
   },
 }
 
@@ -61,7 +61,7 @@ export function useWebExtensionStorage<T>(
   key: string,
   initialValue: MaybeRefOrGetter<T>,
   options: WebExtensionStorageOptions<T> = {},
-): RemovableRef<T> {
+): { data: RemovableRef<T>, dataReady: Promise<T> } {
   const {
     flush = 'pre',
     deep = true,
@@ -109,15 +109,46 @@ export function useWebExtensionStorage<T>(
     }
   }
 
-  void read()
+  const dataReadyPromise = new Promise<T>((resolve, reject) => {
+    read().then(() => resolve(data.value)).catch(reject)
+  })
+
+  async function write() {
+    try {
+      await (
+        data.value == null
+          ? storageInterface.removeItem(key)
+          : storageInterface.setItem(key, await serializer.write(data.value))
+      )
+    }
+    catch (error) {
+      onError(error)
+    }
+  }
+
+  const { pause: pauseWatch, resume: resumeWatch } = pausableWatch(
+    data,
+    write,
+    {
+      flush,
+      deep,
+      eventFilter,
+    },
+  )
 
   if (listenToStorageChanges) {
     const listener = async (changes: Record<string, Storage.StorageChange>) => {
-      for (const [key, change] of Object.entries(changes)) {
-        await read({
-          key,
-          newValue: change.newValue as string | null,
-        })
+      try {
+        pauseWatch()
+        for (const [key, change] of Object.entries(changes)) {
+          await read({
+            key,
+            newValue: change.newValue as string | null,
+          })
+        }
+      }
+      finally {
+        resumeWatch()
       }
     }
 
@@ -128,22 +159,8 @@ export function useWebExtensionStorage<T>(
     })
   }
 
-  watchWithFilter(
-    data,
-    async () => {
-      try {
-        await (data.value == null ? storageInterface.removeItem(key) : storageInterface.setItem(key, await serializer.write(data.value)))
-      }
-      catch (error) {
-        onError(error)
-      }
-    },
-    {
-      flush,
-      deep,
-      eventFilter,
-    },
-  )
-
-  return data as RemovableRef<T>
+  return {
+    data: data as RemovableRef<T>,
+    dataReady: dataReadyPromise,
+  }
 }

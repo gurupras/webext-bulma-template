@@ -14,11 +14,11 @@ export async function getManifest() {
     version: pkg.version,
     description: pkg.description,
     action: {
-      default_icon: './assets/icon-512.png',
-      default_popup: './dist/popup/index.html',
+      default_icon: 'assets/icon-512.png',
+      default_popup: 'dist/popup/index.html',
     },
     options_ui: {
-      page: './dist/options/index.html',
+      page: 'dist/options/index.html',
       open_in_tab: true,
     },
     background: isFirefox
@@ -27,18 +27,19 @@ export async function getManifest() {
           type: 'module',
         }
       : {
-          service_worker: './dist/background/index.mjs',
+          service_worker: 'dist/background/index.mjs',
           type: 'module'
         },
     icons: {
-      16: './assets/icon-512.png',
-      48: './assets/icon-512.png',
-      128: './assets/icon-512.png',
+      16: 'assets/icon-512.png',
+      48: 'assets/icon-512.png',
+      128: 'assets/icon-512.png',
     },
     permissions: [
       'tabs',
       'storage',
       'activeTab',
+      'sidePanel',
     ],
     host_permissions: ['*://*/*'],
     content_scripts: [
@@ -63,6 +64,19 @@ export async function getManifest() {
         ? `script-src \'self\' http://localhost:${port}; object-src \'self\'`
         : 'script-src \'self\'; object-src \'self\'',
     },
+  }
+
+  // add sidepanel
+  if (isFirefox) {
+    manifest.sidebar_action = {
+      default_panel: 'dist/sidepanel/index.html',
+    }
+  }
+  else {
+    // the sidebar_action does not work for chromium based
+    (manifest as any).side_panel = {
+      default_path: 'dist/sidepanel/index.html',
+    }
   }
 
   // FIXME: not work in MV3
